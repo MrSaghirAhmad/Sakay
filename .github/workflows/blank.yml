@@ -1,5 +1,6 @@
-# This is a basic workflow to help you get started with Actions
+Sure! Here’s the workflow file tailored to your *Sakay* chat app's CI pipeline, considering you are using Flutter. This file will handle setting up the environment, installing dependencies, running tests, building the app, and preparing it for deployment.
 
+```yaml
 name: CI
 
 # Controls when the workflow will run
@@ -13,24 +14,54 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      # Checks out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+      # Sets up Flutter environment
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.7.0' # Specify the Flutter version you're using
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+      # Caches Flutter dependencies to speed up workflow
+      - name: Cache Flutter dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-
+
+      # Installs Flutter dependencies
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Runs tests to ensure everything is functioning correctly
+      - name: Run tests
+        run: flutter test
+
+      # Build the Flutter app for Android
+      - name: Build APK (Android)
+        run: flutter build apk --release
+
+      # Optionally, if you want to build for iOS, uncomment the line below:
+      # - name: Build iOS
+      #   run: flutter build ios --release
+
+      # Optionally, add deployment steps (e.g., upload to stores or internal services)
+```
+
+### Key Points:
+1. **Set up Flutter**: Configures the Flutter SDK to ensure the correct version is used.
+2. **Cache Flutter dependencies**: Caches the dependencies to speed up future builds.
+3. **Install dependencies**: Ensures that the necessary Flutter dependencies are installed.
+4. **Run tests**: Executes unit tests for your app using `flutter test`.
+5. **Build APK (Android)**: Builds the app for Android release using `flutter build apk --release`. For iOS, you can uncomment the `flutter build ios --release` command.
+6. **Deployment (Optional)**: You can add steps to deploy the built app (e.g., upload to Firebase, app stores, or other platforms).
+
+This setup is
